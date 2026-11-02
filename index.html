@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Семья">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Семья</title>
+<style>
+:root{--bg:#f4f7f6;--card:#fff;--ink:#14201d;--mut:#64748b;--line:#e2e8f0;--pri:#0f766e;--pri2:#d5f5ef;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--hdr:#0f766e}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1211;--card:#141d1b;--ink:#e6efed;--mut:#94a3b8;--line:#26342f;--pri:#2dd4bf;--pri2:#143c36;--hdr:#0d5f59}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--hdr);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+header h1{margin:0;font-size:17px}
+header div{font-size:12px;opacity:.85}
+main{padding:12px 16px;max-width:720px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:8px 1px;font-size:10px}
+nav button span{display:block;font-size:20px}
+nav button.on{color:var(--pri);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+.card.done{border-color:var(--ok)}
+.hrow{display:flex;align-items:center;gap:8px}
+.hrow b{flex:1}
+.ic{font-size:22px}
+.pill{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--line);white-space:nowrap}
+.pill.ok{background:var(--ok);color:#fff}
+.mut{color:var(--mut);font-size:13px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 14px;white-space:nowrap}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.datebar{display:flex;align-items:center;justify-content:space-between;text-align:center;margin:6px 0}
+.ib{border:1px solid var(--line);background:var(--card);color:var(--ink);width:40px;height:40px;border-radius:12px;font-size:20px}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.slot{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 2px;font-size:12px}
+.slot.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.tog{width:100%;margin-top:10px;border:1px solid var(--pri);background:none;color:var(--pri);border-radius:10px;padding:10px;font-size:15px;font-weight:600}
+.tog.on{background:var(--ok);border-color:var(--ok);color:#fff}
+select,input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px;margin-top:8px}
+label{display:block;font-size:13px;color:var(--mut);margin-top:8px}
+label input,label select,label textarea{margin-top:3px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:14px;margin:4px 4px 0 0}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.red{color:var(--bad);border-color:var(--bad)}
+.wide{width:100%;margin:12px 0 0}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+.scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+table.grid{border-collapse:collapse;font-size:12px;min-width:100%}
+.grid th,.grid td{border:1px solid var(--line);padding:4px 3px;text-align:center}
+.grid th{background:var(--pri2);font-weight:600}
+.grid td.c{min-width:28px;cursor:pointer}
+.grid td.on{background:var(--ok);color:#fff;font-weight:700}
+.grid tr.wk td{border-top:2px solid var(--pri)}
+.grid tr.td td:nth-child(-n+2){background:var(--pri2);font-weight:700}
+.big{font-size:32px;font-weight:700;color:var(--pri)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.wkc{font-weight:600}.wkc.g{color:var(--ok)}.wkc.y{color:var(--warn)}.wkc.r{color:var(--bad)}
+.li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.li:last-child{border:0}
+.li .f{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+h3{margin:18px 0 4px;font-size:15px}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20;align-items:flex-end}
+#sheet.open{display:flex}
+.sh{background:var(--card);width:100%;max-width:720px;margin:0 auto;border-radius:18px 18px 0 0;max-height:90vh;overflow:auto;padding:14px 16px calc(16px + env(safe-area-inset-bottom))}
+.shh{display:flex;justify-content:space-between;align-items:center}
+.note{background:var(--pri2);border-radius:10px;padding:10px;font-size:13px;margin:8px 0}
+.quote{background:linear-gradient(135deg,var(--pri2),var(--card));border:1px solid var(--line);border-radius:14px;padding:12px;margin:4px 0 10px}
+.quote .tag{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--pri);font-weight:700}
+.quote p{margin:6px 0;font-size:15.5px}
+.qrow{display:flex;align-items:center;gap:6px}.qrow .src{flex:1;font-size:12px;color:var(--mut)}.qrow .btn{margin:0;padding:6px 10px}
+.thumb{width:64px;height:64px;border-radius:12px;object-fit:cover;background:var(--pri2);flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden}
+.care{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13.5px}
+.care>span{flex:1}.care .btn{margin:0;padding:6px 12px}
+.st-due{color:var(--bad);font-weight:600}.st-soon{color:var(--warn);font-weight:600}.st-ok{color:var(--ok)}
+.win{border-left:3px solid var(--pri);padding:4px 8px;margin:6px 0;font-size:13.5px}
+#syn{font-size:11px;opacity:.8}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}.bar>i{display:block;height:100%;background:var(--pri);border-radius:99px}
+details{margin-top:8px;font-size:13px}details summary{color:var(--pri);font-weight:600;cursor:pointer}details ol{padding-left:20px;margin:6px 0}details li{margin:4px 0}
+code{background:var(--pri2);padding:1px 5px;border-radius:5px}
+.chip small{opacity:.8;font-size:11px}
+.wk7{display:flex;gap:4px;margin:4px 0 8px}
+.dd{flex:1;text-align:center;border-radius:10px;padding:4px 0 3px;border:1px solid var(--line);background:var(--card);font-size:10px;color:var(--mut);border-bottom-width:4px}
+.dd b{display:block;font-size:14px;color:var(--ink)}.dd.sel{background:var(--pri2);border-color:var(--pri)}
+.dd.g{border-bottom-color:var(--ok)}.dd.y{border-bottom-color:var(--warn)}.dd.r{border-bottom-color:var(--bad)}
+.book{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.book:last-child{border:0}
+.spine{width:38px;height:52px;border-radius:4px 7px 7px 4px;flex:none;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:inset 4px 0 0 rgba(0,0,0,.18)}
+.bk{background:var(--bg);border-radius:10px;padding:8px;margin-top:8px}
+.pgrow{display:flex;gap:6px;align-items:center;margin-top:6px}.pgrow input{margin:0;width:90px;flex:none}.pgrow .btn{margin:0}
+.bdg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:10.5px;line-height:1.2}
+.bdg div{padding:6px 2px;border-radius:10px;background:var(--bg)}.bdg span{font-size:24px;display:block;margin-bottom:2px}.bdg .off{opacity:.35;filter:grayscale(1)}
+.cf{position:fixed;top:-12px;width:8px;height:12px;z-index:50;border-radius:2px;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(108vh) rotate(760deg)}}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:51;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px;text-align:center;font-weight:600;max-width:520px;margin:0 auto;animation:tin .25s ease-out}
+@keyframes tin{from{transform:translateY(20px);opacity:0}}
+#login{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:calc(30px + env(safe-area-inset-top)) 16px 30px}
+#login .box{max-width:420px;margin:0 auto}
+#login h2{margin:0 0 4px;font-size:22px;color:var(--pri)}
+.who{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:10px;color:var(--ink);font-size:16px}
+.who.on{border-color:var(--pri);background:var(--pri2)}
+.av{width:44px;height:44px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:none}
+.pin{font-size:26px;letter-spacing:12px;text-align:center}
+#print{display:none}
+@media print{
+ @page{size:A4;margin:8mm}
+ body{background:#fff;color:#000;padding:0}
+ body>*:not(#print){display:none!important}
+ #print{display:block}
+ .pg{page-break-after:always}
+ .pg h2{margin:0 0 2px;font-size:16px}
+ .pg .meta{font-size:11px;margin-bottom:4px}
+ .grid{width:100%;font-size:10px}
+ .grid th,.grid td{border:1px solid #444;padding:2px;height:5.3mm}
+ .grid th{background:#e6f4f1!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .grid td.on{background:none;color:#000}
+ .grid tr.wk td{border-top:2px solid #000}
+ .foot{font-size:10px;margin-top:4px}
+}
+</style>
+</head>
+<body>
+<header><h1 id="ttl">Семья</h1><div id="sub"></div><div id="syn"></div></header>
+<main id="main"></main>
+<nav>
+ <button data-t="today" onclick="go('today')"><span>✅</span>Сегодня</button>
+ <button data-t="table" onclick="go('table')"><span>📋</span>Таблица</button>
+ <button data-t="prog" onclick="go('prog')"><span>📈</span>Прогресс</button>
+ <button data-t="plants" onclick="go('plants')"><span>🌸</span>Цветы</button>
+ <button data-t="fam" onclick="go('fam')"><span>👨‍👩‍👧</span>Семья</button>
+ <button data-t="set" onclick="go('set')"><span>⚙️</span>Настройки</button>
+</nav>
+<div id="sheet"></div>
+<div id="print"></div>
+<script>
+const APPV='1.1';
+const KEY='family40_v1';
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pd=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const ds=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const add=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return ds(d)};
+const today=()=>ds(new Date());
+const fmtD=s=>pd(s).toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
+const fmtS=s=>{const d=pd(s);return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')};
+const fmtL=s=>pd(s).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+
+function def(){const a='husband',b='wife';return{
+ members:[{id:a,last:'',first:'Муж',middle:'',birth:'',phone:'',role:'Муж',note:''},{id:b,last:'',first:'Жена',middle:'',birth:'',phone:'',role:'Жена',note:''}],
+ relatives:[],
+ ch:{title:'40-дневный челлендж',start:'2026-11-03',days:40},
+ habits:[
+  {id:'namaz',name:'Намаз 5 раз',short:'Намаз',icon:'🕌',type:'daily',slots:['Фаджр','Зухр','Аср','Магриб','Иша'],target:5,members:[a,b]},
+  {id:'sport',name:'Утренняя зарядка',short:'Зарядка',icon:'🏃',type:'weekly',target:5,members:[a,b]},
+  {id:'walk',name:'Прогулка: Джангох → парк Анхор → обратно',short:'Прогулка',icon:'🚶',type:'weekly',target:2,members:[a,b]},
+  {id:'read',name:'Чтение книги 10 минут',short:'Чтение',icon:'📖',type:'weekly',target:2,members:[a,b]},
+  {id:'call',name:'Звонок родственнику',short:'Звонок',icon:'📞',type:'weekly',target:1,kind:'call',members:[a,b]},
+  {id:'visit',name:'Поездка к родственникам',short:'Визит',icon:'🚗',type:'monthly',target:2,kind:'visit',members:[a,b]},
+  {id:'firm',name:'Развитие своей фирмы',short:'Фирма',icon:'💼',type:'weekly',target:5,members:[a]},
+  {id:'skill',name:'Навыки на основной работе',short:'Навыки',icon:'🎯',type:'weekly',target:5,members:[a]}
+ ],
+ log:{},plants:[],notes:{},goals:[],books:[],arch:[],ts:{}}}
+const fixS=x=>{x.plants??=[];x.notes??={};x.relatives??=[];x.habits??=[];x.log??={};x.goals??=[];x.books??=[];x.arch??=[];x.ts??={};return x};
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.members)return fixS(x)}catch(e){}return def()}
+
+/* Мысль дня: 20 аятов и хадисов + 20 практических советов, чередуются — по одной на каждый день */
+const QR=[
+ {t:'Дисциплина',q:'Самые любимые Аллахом дела — те, что совершаются постоянно, пусть даже их немного.',s:'Хадис, аль-Бухари и Муслим'},
+ {t:'Перемены',q:'Аллах не меняет положения людей, пока они сами не изменят того, что в их душах.',s:'Коран, 13:11'},
+ {t:'Супруги',q:'Из Его знамений — то, что Он сотворил для вас супругов, чтобы вы находили в них покой, и установил между вами любовь и милосердие.',s:'Коран, 30:21'},
+ {t:'Семья',q:'Лучший из вас — тот, кто лучше всех относится к своей семье.',s:'Хадис, ат-Тирмизи'},
+ {t:'Родители',q:'Рай — под ногами матерей.',s:'Хадис, ан-Насаи'},
+ {t:'Родственники',q:'Кто хочет, чтобы его удел расширился, а жизнь продлилась, пусть поддерживает связи с родственниками.',s:'Хадис, аль-Бухари и Муслим'},
+ {t:'Супруги',q:'Самые совершенные в вере — те, у кого лучший нрав, а лучшие из вас — лучшие по отношению к своим жёнам.',s:'Хадис, ат-Тирмизи'},
+ {t:'Сдержанность',q:'Силён не тот, кто побеждает в борьбе, а тот, кто владеет собой в гневе.',s:'Хадис, аль-Бухари'},
+ {t:'Ответственность',q:'Каждый из вас — пастырь, и каждый отвечает за свою паству; мужчина — пастырь своей семьи.',s:'Хадис, аль-Бухари'},
+ {t:'Дети',q:'Не из нас тот, кто не милосерден к младшим и не уважает старших.',s:'Хадис, ат-Тирмизи'},
+ {t:'Родители',q:'Не говори родителям «уф», не кричи на них, говори с ними почтительно и склони перед ними крыло смирения по милосердию.',s:'Коран, 17:23–24'},
+ {t:'Терпение',q:'Поистине, за тягостью — облегчение.',s:'Коран, 94:6'},
+ {t:'Силы',q:'Аллах не возлагает на душу больше, чем она может вынести.',s:'Коран, 2:286'},
+ {t:'Мольба',q:'Господь наш, даруй нам в наших супругах и потомках отраду для глаз.',s:'Коран, 25:74'},
+ {t:'Доброта',q:'Улыбка в лицо брату — тоже милостыня.',s:'Хадис, ат-Тирмизи'},
+ {t:'Благодарность',q:'Кто проснулся в безопасности, здоровым и с пропитанием на день — тому словно дан весь мир.',s:'Хадис, ат-Тирмизи'},
+ {t:'Качество',q:'Аллах любит, когда человек, делая дело, делает его хорошо.',s:'Хадис, аль-Байхаки'},
+ {t:'Благодарность',q:'Если будете благодарны, Я непременно дам вам больше.',s:'Коран, 14:7'},
+ {t:'Братство',q:'Никто из вас не уверует по-настоящему, пока не пожелает брату того же, чего желает себе.',s:'Хадис, аль-Бухари'},
+ {t:'Мягкость',q:'Мягкость украшает всё, во что она входит, а её отсутствие всё портит.',s:'Хадис, Муслим'}];
+const QT=[
+ {t:'Супруги',q:'Скажите супруге спасибо за одно конкретное дело сегодня — не «за всё», а за что-то одно.'},
+ {t:'Дети',q:'Перед сном спросите детей: «Что сегодня было самым лучшим?» — и просто выслушайте.'},
+ {t:'Семья',q:'Ужин без телефонов: всё внимание — тем, кто рядом.'},
+ {t:'Воспитание',q:'Дети учатся не по словам, а по примеру: пусть увидят, как вы читаете и держите слово.'},
+ {t:'Супруги',q:'Спорьте о проблеме, а не о человеке: «меня беспокоит…» вместо «ты всегда…».'},
+ {t:'Дисциплина',q:'Не пропускайте дважды подряд. Один пропуск — случайность, два — начало новой привычки.'},
+ {t:'Самооценка',q:'Самооценка растёт от сдержанных обещаний себе. Сделайте сегодня маленькое, но обещанное.'},
+ {t:'Дети',q:'Хвалите усилие, а не талант: «Ты долго старался — и получилось».'},
+ {t:'Родственники',q:'Позвоните тому, кому давно не звонили, — даже две минуты разговора укрепляют связь.'},
+ {t:'Супруги',q:'Вспомните вместе один счастливый день из прошлого и расскажите о нём детям.'},
+ {t:'Воспитание',q:'Дайте ребёнку посильную обязанность по дому — ответственность растит уверенность.'},
+ {t:'Семья',q:'Обнимите сегодня каждого члена семьи. Это проще, чем кажется, и важнее, чем кажется.'},
+ {t:'Супруги',q:'Спросите супругу: «Чем я могу помочь тебе на этой неделе?» — и сделайте это.'},
+ {t:'Дети',q:'Когда ребёнок говорит, опуститесь на уровень его глаз и отложите телефон.'},
+ {t:'Родители',q:'Сделайте сегодня что-нибудь для родителей, не дожидаясь их просьбы.'},
+ {t:'Дисциплина',q:'Готовьте вечером то, что нужно утром: одежду, книгу, план. Утро без лишних решений — утро с силами.'},
+ {t:'Семья',q:'Заведите семейную традицию недели — например, субботнюю прогулку в парке.'},
+ {t:'Супруги',q:'Признайте ошибку первым. В семье побеждают вместе, а не друг против друга.'},
+ {t:'Воспитание',q:'Не сравнивайте детей между собой — сравнивайте ребёнка с ним самим вчерашним.'},
+ {t:'Итог',q:'Оглянитесь на пройденные дни: каждая галочка — это вы, сдержавший слово. Отметьте это вместе.'}].map(x=>({...x,s:'Совет дня'}));
+const QUOTES=QR.flatMap((x,i)=>[x,QT[i]]);
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){alert('Не удалось сохранить данные на устройстве')}}
+function save(){saveLocal();schedSync()}
+const SK='family40_sync';
+let SY=(()=>{try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}})();SY.phUp??={};
+function saveSY(){try{localStorage.setItem(SK,JSON.stringify(SY))}catch(e){}}
+let S=load(),tab='today',curD=today(),curMid=(S.members.find(m=>m.id===SY.me)||S.members[0])?.id,prMode='marks',prWho='cur';
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+const dayIdx=s=>Math.round((pd(s)-pd(S.ch.start))/864e5);
+const dates=()=>Array.from({length:S.ch.days},(_,i)=>add(S.ch.start,i));
+const curM=()=>S.members.find(x=>x.id===curMid)||S.members[0];
+const fullName=m=>[m.last,m.first,m.middle].filter(Boolean).join(' ')||'Без имени';
+const shortName=m=>m.first||m.last||'Без имени';
+const habitsOf=mid=>S.habits.filter(h=>h.members.includes(mid));
+const getV=(m,d,h)=>((S.log[m]||{})[d]||{})[h];
+function setV(m,d,h,v){S.log[m]??={};S.log[m][d]??={};if(v==null||v===0||(Array.isArray(v)&&!v.some(Boolean)))delete S.log[m][d][h];else S.log[m][d][h]=v;touch(`log|${m}|${d}`);save()}
+const done=(m,d,h)=>{const v=getV(m,d,h);return Array.isArray(v)?v.filter(Boolean).length:(v?1:0)};
+function periodDates(h,d){
+ if(h.type==='weekly'){const w=Math.floor(dayIdx(d)/7);return Array.from({length:7},(_,k)=>add(S.ch.start,w*7+k))}
+ if(h.type==='monthly'){const x=pd(d),n=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();return Array.from({length:n},(_,k)=>ds(new Date(x.getFullYear(),x.getMonth(),k+1)))}
+ return[d]}
+const periodCount=(m,h,d)=>periodDates(h,d).reduce((a,x)=>a+(done(m,x,h.id)?1:0),0);
+
+function lastC(rid,kind){let best='';for(const mid in S.log)for(const d in S.log[mid])for(const hid in S.log[mid][d]){const h=S.habits.find(x=>x.id===hid);if(h&&h.kind===kind&&S.log[mid][d][hid]===rid&&d>best)best=d}return best}
+function suggest(h){if(!S.relatives.length)return null;return[...S.relatives].sort((a,b)=>lastC(a.id,h.kind).localeCompare(lastC(b.id,h.kind)))[0]}
+
+/* ---------- Синхронизация через закрытый репозиторий GitHub ----------
+   Каждое изменение помечается временем по ключу (день участника, цветок, цель…).
+   При синхронизации по каждому ключу побеждает более свежая версия, поэтому
+   отметки мужа и жены, сделанные на разных телефонах, не затирают друг друга. */
+const ARR={member:'members',rel:'relatives',habit:'habits',plant:'plants',goal:'goals',book:'books',arc:'arch'};
+const touch=k=>{S.ts[k]=Date.now()};
+function allKeys(st){const k=['ch'];for(const m in st.log||{})for(const d in st.log[m])k.push(`log|${m}|${d}`);for(const m in st.notes||{})for(const d in st.notes[m])k.push(`note|${m}|${d}`);for(const t in ARR)for(const x of st[ARR[t]]||[])k.push(`${t}|${x.id}`);return k}
+function stampAll(st,t){st.ts??={};for(const k of allKeys(st))if(!st.ts[k])st.ts[k]=t}
+stampAll(S,1);
+function kGet(st,k){const[t,a,b]=k.split('|');if(t==='log')return st.log?.[a]?.[b];if(t==='note')return st.notes?.[a]?.[b];if(t==='ch')return st.ch;return(st[ARR[t]]||[]).find(x=>x.id===a)}
+function kPut(st,k,v){const[t,a,b]=k.split('|');if(v!==undefined)v=JSON.parse(JSON.stringify(v));
+ if(t==='log'||t==='note'){const o=t==='log'?(st.log??={}):(st.notes??={});if(v===undefined){if(o[a])delete o[a][b]}else(o[a]??={})[b]=v;return}
+ if(t==='ch'){if(v)st.ch=v;return}
+ if(!ARR[t])return;
+ const arr=st[ARR[t]]??=[],i=arr.findIndex(x=>x.id===a);if(v===undefined){if(i>=0)arr.splice(i,1)}else if(i>=0)arr[i]=v;else arr.push(v)}
+function merge(L,R){const M=JSON.parse(JSON.stringify(L)),Rt=R.ts||{};M.ts??={};let inc=false,out=false;
+ for(const k in Rt)if(Rt[k]>(M.ts[k]||0)){kPut(M,k,kGet(R,k));M.ts[k]=Rt[k];inc=true}
+ for(const k in M.ts)if(M.ts[k]>(Rt[k]||0)){out=true;break}
+ return{M,inc,out}}
+const GH='https://api.github.com';
+const ghH=()=>({Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json'});
+const b64enc=str=>{const b=new TextEncoder().encode(str);let x='';for(let i=0;i<b.length;i+=8192)x+=String.fromCharCode(...b.subarray(i,i+8192));return btoa(x)};
+const b64dec=c=>new TextDecoder().decode(Uint8Array.from(atob(c.replace(/\s/g,'')),ch=>ch.charCodeAt(0)));
+const ghFetch=(path,opt={})=>fetch(`${GH}/repos/${encodeURIComponent(SY.owner)}/${encodeURIComponent(SY.repo)}${path}`,{cache:'no-store',...opt,headers:{...ghH(),...(opt.headers||{})}});
+async function ghGet(){const r=await ghFetch('/contents/data.json');if(r.status===404)return null;if(!r.ok)throw new Error(r.status);const j=await r.json();let c=j.content;
+ if(!c){const b=await fetch(j.git_url,{cache:'no-store',headers:ghH()});c=(await b.json()).content}
+ return{sha:j.sha,data:JSON.parse(b64dec(c))}}
+async function ghPut(path,content,sha,message){const r=await ghFetch('/contents/'+path,{method:'PUT',body:JSON.stringify({message,content,...(sha?{sha}:{})})});if(r.status===409||r.status===422)return false;if(!r.ok)throw new Error(r.status);return true}
+let syncing=false,again=false,sT;
+function schedSync(){if(!SY.joined)return;clearTimeout(sT);sT=setTimeout(syncNow,2000)}
+const busy=()=>document.getElementById('sheet').classList.contains('open')||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+function setSyn(t){const e=document.getElementById('syn');if(e)e.textContent=t}
+async function syncNow(){if(!SY.joined||!SY.token)return;if(syncing){again=true;return}
+ syncing=true;setSyn('☁️ синхронизация…');
+ try{let inc=false,wait=false;
+  for(let i=0;i<4;i++){const R=await ghGet();
+   if(!R){if(await ghPut('data.json',b64enc(JSON.stringify(S)),null,'Семья: первая загрузка'))break;continue}
+   if(busy()){wait=true;break}
+   const x=merge(S,R.data);if(x.inc){S=fixS(x.M);saveLocal();inc=true}
+   if(!x.out)break;
+   if(await ghPut('data.json',b64enc(JSON.stringify(S)),R.sha,'Семья: обновление'))break}
+  if(wait){clearTimeout(sT);sT=setTimeout(syncNow,4000);setSyn('')}
+  else{await syncPhotos();SY.last=Date.now();saveSY();setSyn('☁️ синхронизировано в '+new Date(SY.last).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));if(inc&&!busy())render()}
+ }catch(e){setSyn(e.message==='401'?'⚠️ облако: токен не подходит или истёк':'⚠️ нет связи с облаком — всё сохранено на телефоне')}
+ finally{syncing=false}
+ if(again){again=false;syncNow()}}
+async function syncPhotos(){let ch=false;
+ for(const p of S.plants){if(!p.hasPhoto)continue;let rec;try{rec=await dtx('readonly',s=>s.get(p.id),'photos')}catch(e){continue}
+  if(!p.phv){if(!rec)continue;p.phv=Date.now();touch('plant|'+p.id);ch=true;rec={...rec,v:p.phv};await dtx('readwrite',s=>s.put(rec),'photos')}
+  const path=`photos/${p.id}-${p.phv}.jpg`;
+  if(rec&&rec.v===p.phv){if(SY.phUp[p.id]!==p.phv){await ghPut(path,(await b64(rec.blob)).split(',')[1],null,'Фото: '+p.name);SY.phUp[p.id]=p.phv;saveSY()}}
+  else{const r=await ghFetch('/contents/'+path,{headers:{Accept:'application/vnd.github.raw'}});
+   if(r.ok){const blob=await r.blob(),v=p.phv;await dtx('readwrite',s=>s.put({id:p.id,blob,v}),'photos');if(phURL[p.id]){URL.revokeObjectURL(phURL[p.id]);delete phURL[p.id]}SY.phUp[p.id]=v;saveSY();fillPhotos()}}}
+ if(ch){saveLocal();schedSync()}}
+async function syncConnect(){const o=document.getElementById('gO').value.trim(),r=document.getElementById('gR').value.trim(),t=document.getElementById('gT').value.trim();
+ if(!o||!r||!t)return alert('Заполните все три поля');
+ Object.assign(SY,{owner:o,repo:r,token:t});setSyn('☁️ подключение…');
+ try{const rr=await ghFetch('');if(rr.status===401)throw new Error('Токен не подходит. Проверьте, что скопировали его целиком.');if(!rr.ok)throw new Error('Репозиторий не найден, или у токена нет к нему доступа.');
+  const info=await rr.json();if(!info.private&&!confirm('Внимание: этот репозиторий ОТКРЫТЫЙ, данные семьи увидят все. Лучше сделать его закрытым (Private). Продолжить всё равно?')){setSyn('');return}
+  const R=await ghGet();
+  if(R&&confirm('В облаке уже есть данные семьи.\n\nОК — загрузить их на этот телефон (рекомендуется для второго телефона; данные этого телефона будут заменены).\nОтмена — объединить с данными этого телефона.')){const d=R.data,pins={};S.members.forEach(m=>{if(m.pinH)pins[m.id]=m.pinH});d.ts??={};(d.members||[]).forEach(m=>{if(!m.pinH&&pins[m.id]){m.pinH=pins[m.id];d.ts['member|'+m.id]=Date.now()}});S=fixS(d);saveLocal()}
+  SY.joined=true;saveSY();curMid=(S.members.find(m=>m.id===ME)||S.members[0])?.id;render();await syncNow();render();
+  alert('Подключено! Теперь данные семьи общие на всех телефонах.')}
+ catch(e){SY.joined=false;saveSY();setSyn('');alert(e.message==='Failed to fetch'?'Нет интернета или GitHub недоступен.':e.message)}}
+function syncCard(){
+ if(SY.joined)return`<h3>☁️ Синхронизация</h3><div class=card><div>Подключено: <b>${esc(SY.owner)}/${esc(SY.repo)}</b></div><div class=mut>${SY.last?'Последняя синхронизация: '+new Date(SY.last).toLocaleString('ru-RU'):'Ещё не синхронизировано'}</div>
+ <div class=row><button class="btn pri" onclick="syncNow().then(render)">🔄 Синхронизировать</button><button class="btn red" onclick="if(confirm('Отключить синхронизацию на этом телефоне? Данные останутся и на телефоне, и в облаке.')){SY={phUp:{}};saveSY();setSyn('');render()}">Отключить</button></div>
+ <div class=mut style="margin-top:6px">Синхронизируются отметки, цветы с фото, цели, записи, родственники, архив челленджей и настройки. Документы остаются только на этом телефоне.</div></div>`;
+ return`<h3>☁️ Общие данные с супругой</h3><div class=card><div class=mut>Подключите оба телефона к одному закрытому репозиторию на GitHub — и каждый будет видеть отметки и прогресс другого.</div>
+ <details><summary>Как подключить (5 минут, один раз)</summary><ol>
+ <li>На github.com нажмите <b>New repository</b>, имя <code>family40-data</code>, выберите <b>Private</b>, затем <b>Create repository</b>.</li>
+ <li>Откройте <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+ <li>Срок (Expiration) — 1 год. В разделе <b>Repository access</b> выберите <b>Only select repositories</b>, затем <code>family40-data</code>.</li>
+ <li>В <b>Permissions → Repository permissions → Contents</b> поставьте <b>Read and write</b>. Нажмите <b>Generate token</b> и скопируйте его (начинается с <code>github_pat_</code>).</li>
+ <li>Вставьте логин, имя репозитория и токен ниже. На втором телефоне сделайте то же самое с <b>тем же токеном</b> и выберите «загрузить данные из облака».</li></ol>
+ Токен хранится только на ваших телефонах и даёт доступ только к этому одному репозиторию.</details>
+ <label>Ваш логин на GitHub<input id=gO autocapitalize=off autocorrect=off value="${esc(SY.owner||'')}"></label><label>Имя закрытого репозитория<input id=gR autocapitalize=off autocorrect=off value="${esc(SY.repo||'family40-data')}"></label><label>Токен доступа<input id=gT type=password autocomplete=off></label>
+ <button class="btn pri wide" onclick="syncConnect()">Подключить</button></div>`}
+function resetLog(){for(const m in S.log)for(const d in S.log[m])touch(`log|${m}|${d}`);S.log={};save();render()}
+
+/* ---------- Семейные цели ---------- */
+const fmtNum=n=>(+n||0).toLocaleString('ru-RU');
+function goalsCard(){let h=`<div class=card><div class=hrow><span class=ic>🎯</span><b>Семейные цели</b><button class="btn pri" style="margin:0" onclick="editGoal()">+ Цель</button></div>`;
+ if(!S.goals.length)h+='<div class=mut style="margin-top:6px">Например: прочитать вместе 4 книги, накопить на семейную поездку, выучить с детьми 10 сур. Нажмите «+ Цель».</div>';
+ for(const g of S.goals){const p=Math.min(100,Math.round(g.cur/g.target*100)||0),dl=g.deadline?dayDiff(today(),g.deadline):null;
+  h+=`<div style="margin-top:12px"><div class=hrow><span>${esc(g.icon||'🎯')}</span><b style="font-weight:600">${esc(g.title)}</b><span class="pill ${p>=100?'ok':''}">${p}%</span></div><div class=bar><i style="width:${p}%"></i></div>
+  <div class=care><span class=mut>${fmtNum(g.cur)} из ${fmtNum(g.target)} ${esc(g.unit||'')}${dl!==null?' · '+(dl<0?'срок прошёл':dl===0?'срок сегодня':'осталось '+dl+' дн.'):''}</span><button class=btn onclick="goalStep('${g.id}',-1)">−</button><button class="btn pri" onclick="goalStep('${g.id}',1)">+${fmtNum(g.step||1)}</button><button class=btn onclick="editGoal('${g.id}')">✏️</button></div></div>`}
+ return h+'</div>'}
+function goalStep(id,s){const g=S.goals.find(x=>x.id===id),st=+g.step||1,was=+g.cur||0;g.cur=Math.max(0,was+s*st);touch('goal|'+id);save();render();if(s>0&&was<g.target&&g.cur>=g.target)setTimeout(()=>alert('Цель «'+g.title+'» достигнута! Машаллах 🎉'),50)}
+function editGoal(id){const g=S.goals.find(x=>x.id===id)||{id:uid(),title:'',icon:'🎯',unit:'',target:10,cur:0,step:1,deadline:''},isNew=!id;
+ sheet(isNew?'Новая семейная цель':'Цель',`<label>Цель<input name=title value="${esc(g.title)}" placeholder="Накопить на поездку"></label><div class=row><label>Значок<input name=icon value="${esc(g.icon)}"></label><label>Единица<input name=unit value="${esc(g.unit)}" placeholder="книг, сум, сур…"></label></div>
+ <div class=row><label>Сколько нужно<input type=number min=1 name=target value="${g.target}"></label><label>Уже есть<input type=number min=0 name=cur value="${g.cur}"></label><label>Шаг кнопки «+»<input type=number min=1 name=step value="${g.step||1}"></label></div>
+ <label>Срок (необязательно)<input type=date name=deadline value="${esc(g.deadline||'')}"></label>${isNew?'':`<button class="btn red wide" onclick="delGoal('${g.id}')">Удалить цель</button>`}`,
+ el=>{g.title=fv(el,'title');if(!g.title){alert('Укажите цель');return false}g.icon=fv(el,'icon')||'🎯';g.unit=fv(el,'unit');g.target=Math.max(1,+fv(el,'target')||1);g.cur=Math.max(0,+fv(el,'cur')||0);g.step=Math.max(1,+fv(el,'step')||1);g.deadline=fv(el,'deadline');if(isNew)S.goals.push(g);touch('goal|'+g.id)})}
+function delGoal(id){if(!confirm('Удалить цель?'))return;S.goals=S.goals.filter(x=>x.id!==id);touch('goal|'+id);save();closeSheet();render()}
+
+/* ---------- Вход по ПИН-коду ----------
+   Каждый взрослый отмечает только свои дела; данные детей меняют оба родителя.
+   ПИН защищает от случайных правок с чужого телефона; сами данные защищены закрытым репозиторием. */
+const MK='family40_me';
+let ME=(()=>{try{return localStorage.getItem(MK)||''}catch(e){return''}})(),lgSel='';
+const isChild=m=>/доч|сын|ребён|ребен|дет/i.test(m.role||'')||(!!m.birth&&parseInt(age(m.birth))<18);
+const adults=()=>S.members.filter(m=>!isChild(m));
+const needLogin=()=>adults().length>0&&!S.members.some(m=>m.id===ME&&!isChild(m));
+const canEdit=mid=>{const m=S.members.find(x=>x.id===mid);return!m||mid===ME||isChild(m)};
+function guard(mid){mid??=curM()?.id;if(canEdit(mid))return true;alert('Это может отмечать и менять только '+shortName(S.members.find(x=>x.id===mid)||{})+'.');return false}
+function pinHash(id,pin){let h=5381;const s='f40:'+id+':'+pin;for(let r=0;r<500;r++)for(const c of s)h=((h*33)^c.charCodeAt(0))>>>0;return h.toString(36)}
+function showLogin(){let el=document.getElementById('login');if(!el){el=document.createElement('div');el.id='login';document.body.appendChild(el)}
+ const A=adults(),sel=A.find(m=>m.id===lgSel);
+ el.innerHTML=`<div class=box><h2>Семья</h2><div class=mut>Кто входит?</div>
+ ${A.map(m=>`<button class="who ${m.id===lgSel?'on':''}" onclick="lgSel='${m.id}';showLogin()"><span class=av>${esc((m.first||'?')[0])}</span><span><b>${esc(fullName(m))}</b><div class=mut>${esc(m.role||'')}${m.pinH?'':' · ПИН ещё не задан'}</div></span></button>`).join('')}
+ ${!sel?'':sel.pinH?`<label>ПИН-код<input id=lp class=pin type=password inputmode=numeric maxlength=8 autocomplete=off onkeydown="if(event.key==='Enter')doLogin()"></label><button class="btn pri wide" onclick="doLogin()">Войти</button><div class=mut style="margin-top:8px">Забыли ПИН? Супруг(а) может сбросить его у себя: «Настройки» → «Вход».</div>`
+  :`<div class=note>Придумайте ПИН-код из 4–8 цифр. Его будете вводить при входе — так никто случайно не отметит ваши дела за вас.</div><label>Новый ПИН<input id=lp class=pin type=password inputmode=numeric maxlength=8 autocomplete=off></label><label>Повторите ПИН<input id=lp2 class=pin type=password inputmode=numeric maxlength=8 autocomplete=off onkeydown="if(event.key==='Enter')doLogin()"></label><button class="btn pri wide" onclick="doLogin()">Сохранить и войти</button>`}
+ <h3 style="margin-top:28px">Первый запуск?</h3><div class=mut>Сначала загрузите файл семьи <b>family40-semya.json</b> — в нём ФИО, даты рождения и направления челленджа. На втором телефоне вместо этого подключите облако после входа.</div>
+ <label class="btn wide" style="text-align:center">📥 Загрузить файл семьи<input type=file accept=".json,application/json" style="display:none" onchange="restore(this.files[0])"></label></div>`;
+ if(sel)setTimeout(()=>document.getElementById('lp')?.focus(),50)}
+function doLogin(){const m=S.members.find(x=>x.id===lgSel);if(!m)return;const p=document.getElementById('lp').value.trim();
+ if(!/^\d{4,8}$/.test(p))return alert('ПИН — от 4 до 8 цифр');
+ if(!m.pinH){if(p!==document.getElementById('lp2').value.trim())return alert('ПИН-коды не совпадают');m.pinH=pinHash(m.id,p);touch('member|'+m.id);saveLocal();schedSync()}
+ else if(pinHash(m.id,p)!==m.pinH){document.getElementById('lp').value='';return alert('Неверный ПИН')}
+ ME=m.id;try{localStorage.setItem(MK,ME)}catch(e){}SY.me=ME;saveSY();curMid=ME;lgSel='';render()}
+function logout(){if(!confirm('Выйти? Для входа понадобится ПИН.'))return;ME='';try{localStorage.removeItem(MK)}catch(e){}render()}
+function accCard(){const me=S.members.find(m=>m.id===ME);if(!me)return'';const others=adults().filter(m=>m.id!==ME&&m.pinH);
+ return`<h3>👤 Вход</h3><div class=card><div>Вы вошли как <b>${esc(fullName(me))}</b></div><div class=row><button class=btn onclick="chPin()">🔑 Сменить ПИН</button><button class="btn red" onclick="logout()">Выйти</button></div>${others.map(o=>`<button class="btn wide" onclick="resetPin('${o.id}')">Сбросить ПИН: ${esc(shortName(o))}</button>`).join('')}<div class=mut style="margin-top:6px">Свои дела каждый отмечает сам — у другого взрослого видно прогресс, но менять нельзя. Данные детей меняют оба родителя. Цели, книги, цветы и настройки — общие.</div></div>`}
+function chPin(){const me=S.members.find(m=>m.id===ME);sheet('Сменить ПИН',`<label>Текущий ПИН<input id=p0 class=pin type=password inputmode=numeric maxlength=8></label><label>Новый ПИН<input id=p1 class=pin type=password inputmode=numeric maxlength=8></label><label>Повторите новый<input id=p2 class=pin type=password inputmode=numeric maxlength=8></label>`,el=>{
+ const g=i=>el.querySelector('#'+i).value.trim();if(pinHash(me.id,g('p0'))!==me.pinH){alert('Текущий ПИН неверный');return false}if(!/^\d{4,8}$/.test(g('p1'))){alert('ПИН — от 4 до 8 цифр');return false}if(g('p1')!==g('p2')){alert('ПИН-коды не совпадают');return false}
+ me.pinH=pinHash(me.id,g('p1'));touch('member|'+me.id);setTimeout(()=>alert('ПИН изменён'),50)})}
+function resetPin(id){const o=S.members.find(m=>m.id===id);if(!confirm('Сбросить ПИН для '+shortName(o)+'? При следующем входе он(а) придумает новый.'))return;delete o.pinH;touch('member|'+id);save();render()}
+
+/* ---------- Радость и удобство ---------- */
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}};
+function celebrate(msg){try{navigator.vibrate&&navigator.vibrate([30,40,60])}catch(e){}
+ const cols=['#16a34a','#0f766e','#f59e0b','#e11d48','#3b82f6','#a855f7'];
+ for(let i=0;i<46;i++){const c=document.createElement('i');c.className='cf';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];c.style.animationDuration=(1.3+Math.random()*1.2)+'s';c.style.animationDelay=Math.random()*.3+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2900)}
+ const t=document.createElement('div');t.className='toast';t.textContent='🎉 '+msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3200)}
+function fullDay(mid,d){const dl=habitsOf(mid).filter(x=>x.type==='daily');return dl.length>0&&dl.every(x=>done(mid,d,x.id)===x.slots.length)}
+function chipStat(mid){const d=curD,dl=habitsOf(mid).filter(x=>x.type==='daily');
+ if(dl.length){const p=dayPct(mid,d).p;return p>=1?'✓':Math.round(p*100)+'%'}
+ const n=Object.keys((S.log[mid]||{})[d]||{}).length;return n?'✓'+n:''}
+function weekStrip(mid){const t=today();let h='<div class=wk7>';
+ for(let i=-3;i<=3;i++){const d=add(curD,i),f=d>t,p=dayPct(mid,d).p,any=Object.keys((S.log[mid]||{})[d]||{}).length;
+  const cls=f?'':p>=1?'g':p>=.6?'y':(p>0||any)?'r':'';
+  h+=`<button class="dd ${cls} ${d===curD?'sel':''}" onclick="curD='${d}';render()">${pd(d).toLocaleDateString('ru-RU',{weekday:'short'})}<b>${pd(d).getDate()}</b></button>`}
+ return h+'</div>'}
+
+/* ---------- Книги ---------- */
+const BST={reading:'Читаю',want:'Хочу прочитать',done:'Прочитано'};
+const spineCol=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return`hsl(${h} 45% 38%)`};
+const ownerName=o=>o?esc(shortName(S.members.find(m=>m.id===o)||{})):'вместе';
+const bookPct=b=>b.status==='done'?100:b.pages?Math.min(100,Math.round((b.page||0)/b.pages*100)):0;
+const isReadHabit=x=>x.id==='read'||/чтен|книг/i.test(x.name);
+function bookBit(x,m){if(!isReadHabit(x))return'';const bs=S.books.filter(b=>b.status==='reading'&&(!b.owner||b.owner===m.id));
+ if(!bs.length)return`<div class=bk><div class=mut>Какую книгу вы читаете? Добавьте её — с названием, автором и количеством страниц.</div><button class="btn pri" onclick="editBook()">+ Добавить книгу</button><button class=btn onclick="openLib()">📚 Библиотека</button></div>`;
+ return bs.map(b=>`<div class=bk><div class=hrow><b style="font-weight:600">📖 ${esc(b.title)}</b><span class=pill>${bookPct(b)}%</span></div><div class=mut>${esc(b.author||'')}${b.pages?' · стр. '+(b.page||0)+' из '+b.pages:''}</div>${b.pages?`<div class=bar><i style="width:${bookPct(b)}%"></i></div>`:''}
+ <div class=pgrow><span class=mut>Дочитал до стр.</span><input type=number inputmode=numeric min=0 id="pg-${b.id}" value="${b.page||''}"><button class="btn pri" onclick="setPage('${b.id}')">✓</button><button class=btn onclick="openLib()">📚</button></div></div>`).join('')}
+function setPage(bid){if(!guard())return;const b=S.books.find(x=>x.id===bid),el=document.getElementById('pg-'+bid),n=Math.max(0,+el.value||0),m=curM();el.blur();
+ if(n===(b.page||0)&&getV(m.id,curD,'read'))return;
+ b.page=n;b.hist=(b.hist||[]).filter(h=>h.d!==curD);b.hist.unshift({d:curD,page:n});b.hist=b.hist.slice(0,200);
+ let fin=false;if(b.pages&&n>=b.pages&&b.status!=='done'){b.status='done';b.end=curD;fin=true}
+ touch('book|'+b.id);
+ const rh=habitsOf(m.id).find(isReadHabit);if(rh&&rh.type!=='daily'&&!getV(m.id,curD,rh.id))setV(m.id,curD,rh.id,1);
+ save();buzz();render();if(fin)celebrate('Книга «'+b.title+'» прочитана!')}
+function openLib(){const grp=['reading','want','done'].map(st=>{const L=S.books.filter(b=>b.status===st);if(!L.length)return'';
+ return`<h3>${BST[st]} · ${L.length}</h3><div class=card>${L.map(b=>`<div class=book onclick="editBook('${b.id}')"><div class=spine style="background:${spineCol(b.title)}">${esc(b.title.trim()[0]||'?')}</div><div style="flex:1;min-width:0"><b>${esc(b.title)}</b><div class=mut>${esc(b.author||'автор не указан')} · ${ownerName(b.owner)}</div>${st==='reading'&&b.pages?`<div class=bar><i style="width:${bookPct(b)}%"></i></div><div class=mut>стр. ${b.page||0} из ${b.pages}</div>`:''}${st==='done'&&b.end?`<div class=mut>прочитана ${fmtS(b.end)}</div>`:''}</div></div>`).join('')}</div>`}).join('');
+ sheet('📚 Семейная библиотека',`${grp||'<div class=note>Здесь будут ваши книги: что читаете сейчас, что хотите прочитать и что уже прочитали.</div>'}<button class="btn pri wide" onclick="editBook()">+ Добавить книгу</button>`)}
+function editBook(id){const b=S.books.find(x=>x.id===id)||{id:uid(),title:'',author:'',owner:'',status:'reading',pages:'',page:0,start:today(),end:'',note:'',hist:[]},isNew=!id;
+ sheet(isNew?'Новая книга':'Книга',`<label>Название<input name=title value="${esc(b.title)}" placeholder="Например: Путь самурая"></label><label>Автор<input name=author value="${esc(b.author)}" placeholder="Например: Ямамото Цунэтомо"></label>
+ <div class=row><label>Кто читает<select name=owner><option value="">Вместе</option>${S.members.map(m=>`<option value="${m.id}" ${b.owner===m.id?'selected':''}>${esc(fullName(m))}</option>`).join('')}</select></label><label>Статус<select name=status>${Object.entries(BST).map(([k,v])=>`<option value=${k} ${b.status===k?'selected':''}>${v}</option>`).join('')}</select></label></div>
+ <div class=row><label>Всего страниц<input type=number inputmode=numeric min=0 name=pages value="${b.pages||''}"></label><label>Прочитано до стр.<input type=number inputmode=numeric min=0 name=page value="${b.page||0}"></label></div>
+ <label>Мысли и цитаты из книги<textarea name=note rows=4 placeholder="Что зацепило, что хочу применить в жизни…">${esc(b.note)}</textarea></label>
+ ${b.hist&&b.hist.length?`<div class=mut>Чтение: ${b.hist.slice(0,8).map(h=>fmtS(h.d)+' — стр. '+h.page).join(' · ')}</div>`:''}
+ ${isNew?'':`<button class="btn red wide" onclick="delBook('${b.id}')">Удалить книгу</button>`}`,
+ el=>{b.title=fv(el,'title');if(!b.title){alert('Укажите название книги');return false}b.author=fv(el,'author');b.owner=fv(el,'owner');b.pages=Math.max(0,+fv(el,'pages')||0);b.page=Math.max(0,+fv(el,'page')||0);b.note=fv(el,'note');
+  const st=fv(el,'status'),fin=st==='done'&&b.status!=='done';b.status=st;if(fin){b.end=today();if(b.pages)b.page=b.pages}
+  if(isNew)S.books.push(b);touch('book|'+b.id);if(fin)setTimeout(()=>celebrate('Книга «'+b.title+'» прочитана!'),60)})}
+function delBook(id){if(!confirm('Удалить книгу?'))return;S.books=S.books.filter(x=>x.id!==id);touch('book|'+id);save();closeSheet();render()}
+function libCard(){const r=S.books.filter(b=>b.status==='reading'),d=S.books.filter(b=>b.status==='done'),w=S.books.filter(b=>b.status==='want');
+ return`<div class=card><div class=hrow><span class=ic>📚</span><b>Библиотека</b><button class=btn style="margin:0" onclick="openLib()">Открыть</button></div><div class=kpis style="margin-top:8px"><div><div class=big>${r.length}</div><div class=mut>читаем</div></div><div><div class=big>${d.length}</div><div class=mut>прочитано</div></div><div><div class=big>${w.length}</div><div class=mut>в планах</div></div></div>${r.map(b=>`<div style="margin-top:8px"><div class=hrow><span>📖 ${esc(b.title)} <span class=mut>· ${ownerName(b.owner)}</span></span><span class=pill>${bookPct(b)}%</span></div><div class=bar><i style="width:${bookPct(b)}%"></i></div></div>`).join('')}</div>`}
+
+/* ---------- Награды ---------- */
+const countMarks=(mid,pred)=>{let n=0;for(const d in S.log[mid]||{})for(const hid in S.log[mid][d]){const h=S.habits.find(x=>x.id===hid);if(h&&pred(h))n++}return n};
+function maxStreak(mid){let best=0,run=0;for(const d of dates()){if(d>today())break;if(fullDay(mid,d)){run++;best=Math.max(best,run)}else run=0}return best}
+function badgesHTML(mid){const st=maxStreak(mid),anyMark=Object.values(S.log[mid]||{}).some(o=>Object.keys(o).length),
+ books=S.books.filter(b=>b.status==='done'&&(!b.owner||b.owner===mid)).length,
+ calls=countMarks(mid,h=>h.kind==='call'),walks=countMarks(mid,h=>h.id==='walk'||/прогул/i.test(h.name)),notes=Object.keys(S.notes[mid]||{}).length,goal=S.goals.some(g=>g.cur>=g.target),
+ fin=S.arch.length;
+ const B=[['🌱','Первый шаг',anyMark],['🔥','3 дня подряд',st>=3],['⚡','Неделя без пропуска',st>=7],['💎','21 день — привычка',st>=21],['🏆','40 дней',st>=40],['📚','Первая книга',books>=1],['📞','5 звонков родным',calls>=5],['🚶','10 прогулок',walks>=10],['📝','7 записей дня',notes>=7],['🎯','Семейная цель',goal],['🏁','Первый челлендж пройден',fin>=1],['👑','3 челленджа',fin>=3]];
+ const got=B.filter(x=>x[2]).length;
+ return`<h3>🏅 Награды · ${got} из ${B.length}</h3><div class=bdg>${B.map(([i,n,ok])=>`<div class="${ok?'':'off'}"><span>${i}</span>${n}</div>`).join('')}</div>`}
+
+/* ---------- Сегодня ---------- */
+function chips(){return`<div class=chips>${S.members.map(m=>`<button class="chip ${m.id===curM()?.id?'on':''}" onclick="selM('${m.id}')">${esc(shortName(m))} <small>${chipStat(m.id)}</small></button>`).join('')}</div>`}
+function selM(id){curMid=id;render()}
+function shiftD(n){curD=add(curD,n);render()}
+function rToday(){
+ const m=curM();if(!m)return'<p class=mut>Добавьте члена семьи во вкладке «Семья».</p>';
+ const i=dayIdx(curD),N=S.ch.days;
+ let h=chips()+`<div class=datebar><button class=ib onclick="shiftD(-1)">‹</button><div><b>${fmtD(curD)}</b><div class=mut>${i<0?'До старта '+(-i)+' дн.':i>=N?'Челлендж завершён':'День '+(i+1)+' из '+N}</div>${curD!==today()?`<button class=btn onclick="curD=today();render()">Сегодня</button>`:''}</div><button class=ib onclick="shiftD(1)">›</button></div>`;
+ if(dayIdx(today())>=N&&curD===today())h+=`<div class=note>🏁 «${esc(S.ch.title)}» завершён! Подведите итоги во вкладке «Прогресс» и начните следующий: «Настройки» → «Завершить и начать новый». Привычки можно продолжать отмечать и сейчас.</div>`;
+ h+=weekStrip(m.id)+quoteCard()+bdayCard();
+ const hs=habitsOf(m.id);
+ if(!hs.length)h+='<p class=mut>Для этого участника нет направлений. Добавьте их в «Настройках».</p>';
+ if(!canEdit(m.id))h+=`<div class=note>👀 Просмотр. Отмечать дела ${esc(shortName(m))} может только ${esc(shortName(m))} — после входа со своим ПИН-кодом.</div>`;
+ for(const x of hs){
+  const v=getV(m.id,curD,x.id);
+  if(x.type==='daily'){const arr=Array.isArray(v)?v:[];
+   h+=`<div class="card ${arr.filter(Boolean).length===x.slots.length?'done':''}"><div class=hrow><span class=ic>${x.icon}</span><b>${esc(x.name)}</b><span class="pill ${arr.filter(Boolean).length===x.slots.length?'ok':''}">${arr.filter(Boolean).length}/${x.slots.length}</span></div><div class=slots style="grid-template-columns:repeat(${Math.min(x.slots.length,5)},1fr)">${x.slots.map((s,k)=>`<button class="slot ${arr[k]?'on':''}" onclick="tSlot('${x.id}',${k})">${esc(s)}</button>`).join('')}</div></div>`;
+  }else{
+   const c=periodCount(m.id,x,curD),per=x.type==='weekly'?'неделю':'месяц';let rel='';
+   if(x.kind){const sg=suggest(x);
+    rel=`<select onchange="setRel('${x.id}',this.value)"><option value="">— ${x.kind==='call'?'кому позвонили':'к кому съездили'}? —</option>${S.relatives.map(r=>`<option value="${r.id}" ${v===r.id?'selected':''}>${esc(r.name)}${r.relation?' ('+esc(r.relation)+')':''}</option>`).join('')}</select>`+
+     (sg?`<div class=mut style="margin-top:6px">По очереди: <b>${esc(sg.name)}</b>${lastC(sg.id,x.kind)?' · последний раз '+fmtS(lastC(sg.id,x.kind)):' · ещё не было'}${x.kind==='call'&&sg.phone?` · <a href="tel:${esc(sg.phone)}">позвонить</a>`:''}</div>`:'<div class=mut style="margin-top:6px">Добавьте родственников во вкладке «Семья» — появится очередь.</div>')}
+   h+=`<div class="card ${v?'done':''}"><div class=hrow><span class=ic>${x.icon}</span><b>${esc(x.name)}</b><span class="pill ${c>=x.target?'ok':''}">${c}/${x.target} за ${per}</span></div>${rel}${bookBit(x,m)}<button class="tog ${v?'on':''}" onclick="tHab('${x.id}')">${v?'✓ Сделано':'Отметить'}</button></div>`;
+  }}
+ if(curD===today()){const pl=S.plants.filter(p=>(!p.owner||p.owner===m.id)&&CARE.some(c=>{const s=careSt(p,c.k);return s&&(s.due<=0||p.last[c.k]===curD)}));
+  if(pl.length)h+='<h3>🌸 Цветы сегодня</h3>'+pl.map(p=>plantCard(p,true)).join('')}
+ h+=`<div class=card><div class=hrow><span class=ic>📝</span><b>Запись дня</b></div><textarea rows=2 placeholder="За что я благодарен сегодня? Чем горжусь?" ${canEdit(m.id)?'':'readonly'} onchange="setNote(this.value)">${esc(noteOf(m.id,curD))}</textarea></div>`;
+ return h}
+let qOff=0;
+function quoteIdx(){const i=dayIdx(curD),base=i>=0?i:Math.floor(pd(curD)/864e5);return((base+qOff)%QUOTES.length+QUOTES.length)%QUOTES.length}
+function quoteCard(){const q=QUOTES[quoteIdx()];return`<div class=quote><div class=tag>Мысль дня · ${esc(q.t)}</div><p>${esc(q.q)}</p><div class=qrow><span class=src>${esc(q.s)}</span><button class=btn onclick="qOff++;render()" aria-label="Другая">↻</button><button class=btn onclick="shareQ()" aria-label="Поделиться">📤</button></div></div>`}
+function shareQ(){const q=QUOTES[quoteIdx()],txt=`${q.q}\n— ${q.s}`;if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard){navigator.clipboard.writeText(txt);alert('Скопировано — можно отправить в Telegram')}}
+const noteOf=(m,d)=>((S.notes[m]||{})[d])||'';
+function setNote(v){if(!guard())return;const m=curM().id;S.notes[m]??={};v=v.trim();if(v)S.notes[m][curD]=v;else delete S.notes[m][curD];touch(`note|${m}|${curD}`);save()}
+function bdayIn(b){if(!b)return null;const t=pd(today()),x=pd(b);let n=new Date(t.getFullYear(),x.getMonth(),x.getDate());if(n<t)n=new Date(t.getFullYear()+1,x.getMonth(),x.getDate());return Math.round((n-t)/864e5)}
+function bdayCard(){const L=[...S.members.map(m=>({n:fullName(m),b:m.birth})),...S.relatives.map(r=>({n:r.name,b:r.birth}))].map(x=>({...x,d:bdayIn(x.b)})).filter(x=>x.d!==null&&x.d<=7).sort((a,b)=>a.d-b.d);
+ if(!L.length)return'';return`<div class=card><div class=hrow><span class=ic>🎂</span><b>Дни рождения</b></div>${L.map(x=>`<div style="margin-top:4px">${esc(x.n)} — ${x.d===0?'<b class=st-due>сегодня!</b>':x.d===1?'<b class=st-soon>завтра</b>':'через '+x.d+' дн.'}</div>`).join('')}</div>`}
+
+/* ---------- Цветы ---------- */
+const CARE=[{k:'water',ic:'💧',n:'Полив'},{k:'feed',ic:'🧪',n:'Подкормка'},{k:'spray',ic:'💦',n:'Опрыскивание'}];
+const dayDiff=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+function careSt(p,k){const ev=+(p.every||{})[k]||0;if(!ev)return null;const last=(p.last||{})[k];if(!last)return{due:0,txt:'отметьте первый раз',cls:'st-soon'};
+ const d=dayDiff(today(),add(last,ev));return{due:d,txt:d<0?'просрочено на '+(-d)+' дн.':d===0?'сегодня':d===1?'завтра':'через '+d+' дн.',cls:d<=0?'st-due':d===1?'st-soon':'st-ok'}}
+function plantCard(p,compact){const t=today();
+ const rows=CARE.map(c=>{const s=careSt(p,c.k);if(!s)return'';const dn=p.last[c.k]===t;return`<div class=care><span>${c.ic} ${c.n}: <span class="${dn?'st-ok':s.cls}">${dn?'сделано сегодня ✓':s.txt}</span></span><button class="btn ${dn?'':'pri'}" onclick="careDo('${p.id}','${c.k}')">${dn?'Отменить':'Сделано'}</button></div>`}).join('');
+ const owner=S.members.find(m=>m.id===p.owner);
+ return`<div class=card><div class=hrow style="align-items:flex-start"><div class=thumb>${p.hasPhoto?`<img data-ph="${p.id}" class=thumb alt="${esc(p.name)}">`:'🌸'}</div><div style="flex:1;min-width:0"><b>${esc(p.name)}</b><div class=mut>${esc(p.place||'')}${owner?' · ухаживает: '+esc(shortName(owner)):''}</div>${p.note&&!compact?`<div class=mut style="margin-top:2px">${esc(p.note)}</div>`:''}</div>${compact?'':`<button class=btn style="margin:0;flex:none" onclick="editPlant('${p.id}')">✏️</button>`}</div>${rows}</div>`}
+function careDo(pid,k){const p=S.plants.find(x=>x.id===pid),t=today();
+ if(p.last[k]===t){p.hist=p.hist.filter(h=>!(h.k===k&&h.d===t));p.last[k]=(p.hist.find(h=>h.k===k)||{}).d||''}
+ else{p.last[k]=t;p.hist.unshift({d:t,k});p.hist=p.hist.slice(0,150)}touch('plant|'+pid);save();render()}
+const needsCare=p=>CARE.some(c=>{const s=careSt(p,c.k);return s&&s.due<=0&&p.last[c.k]!==today()});
+function rPlants(){const due=S.plants.filter(needsCare),wk=S.plants.reduce((a,p)=>a+p.hist.filter(h=>dayDiff(h.d,today())<7).length,0);
+ let h=`<div class=card><div class=kpis><div><div class=big>${S.plants.length}</div><div class=mut>растений</div></div><div><div class=big style="color:${due.length?'var(--bad)':'var(--ok)'}">${due.length}</div><div class=mut>ждут ухода</div></div><div><div class=big>${wk}</div><div class=mut>дел за 7 дней</div></div></div></div>`;
+ if(!S.plants.length)h+='<div class=note>Добавьте цветы с фото и укажите, как часто их поливать и подкармливать. Приложение само посчитает, что нужно сделать сегодня, и покажет это на главном экране.</div>';
+ h+=[...S.plants].sort((a,b)=>needsCare(b)-needsCare(a)||a.name.localeCompare(b.name)).map(p=>plantCard(p,false)).join('');
+ h+=`<button class="btn pri wide" onclick="editPlant()">+ Добавить цветок</button>${S.plants.length?'<button class="btn wide" onclick="printPlants()">🖨 График ухода на 30 дней (печать / PDF)</button>':''}`;
+ return h}
+function shrink(file,max=900){return new Promise(res=>{const img=new Image(),u=URL.createObjectURL(file);
+ img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>res(b||file),'image/jpeg',.82)};
+ img.onerror=()=>{URL.revokeObjectURL(u);res(file)};img.src=u})}
+const phURL={};
+async function fillPhotos(){for(const el of document.querySelectorAll('img[data-ph]')){const id=el.dataset.ph;
+ if(!phURL[id]){try{const r=await dtx('readonly',s=>s.get(id),'photos');if(r)phURL[id]=URL.createObjectURL(r.blob)}catch(e){}}if(phURL[id])el.src=phURL[id]}}
+const KN={water:'Полив',feed:'Подкормка',spray:'Опрыскивание'};
+function editPlant(id){const p=S.plants.find(x=>x.id===id)||{id:uid(),name:'',place:'',owner:'',every:{water:7,feed:0,spray:0},last:{},hist:[],note:'',hasPhoto:false},isNew=!id;
+ sheet(isNew?'Новый цветок':'Цветок',`<label>Название<input name=name value="${esc(p.name)}" placeholder="Фиалка, орхидея, фикус…"></label><label>Где стоит<input name=place value="${esc(p.place)}" placeholder="Зал, окно на кухне…"></label>
+ <label>Кто ухаживает<select name=owner><option value="">Вся семья</option>${S.members.map(m=>`<option value="${m.id}" ${p.owner===m.id?'selected':''}>${esc(fullName(m))}</option>`).join('')}</select></label>
+ <div class=row><label>💧 Полив, каждые N дней<input type=number min=0 name=water value="${p.every.water||0}"></label><label>Последний полив<input type=date name=lastw value="${p.last.water||''}"></label></div>
+ <div class=row><label>🧪 Подкормка, дней (0 — нет)<input type=number min=0 name=feed value="${p.every.feed||0}"></label><label>💦 Опрыскивание, дней<input type=number min=0 name=spray value="${p.every.spray||0}"></label></div>
+ <label>Фото ${p.hasPhoto?'(выберите, чтобы заменить)':''}<input type=file accept="image/*" name=photo></label>
+ <label>Заметки по уходу<textarea name=note rows=2 placeholder="Свет, пересадка весной, особенности…">${esc(p.note)}</textarea></label>
+ ${p.hist.length?`<h3>История</h3><div class=mut>${p.hist.slice(0,12).map(h=>fmtS(h.d)+' — '+KN[h.k]).join('<br>')}</div>`:''}
+ ${isNew?'':`<button class="btn red wide" onclick="delPlant('${p.id}')">Удалить цветок</button>`}`,
+ el=>{p.name=fv(el,'name');if(!p.name){alert('Укажите название');return false}p.place=fv(el,'place');p.owner=fv(el,'owner');p.note=fv(el,'note');
+  ['water','feed','spray'].forEach(k=>p.every[k]=Math.max(0,+fv(el,k)||0));
+  const lw=fv(el,'lastw');if(lw&&lw!==p.last.water){p.last.water=lw;p.hist.unshift({d:lw,k:'water'});p.hist.sort((a,b)=>b.d.localeCompare(a.d))}
+  if(isNew)S.plants.push(p);touch('plant|'+p.id);
+  const f=el.querySelector('[name=photo]').files[0];
+  if(f){p.hasPhoto=true;p.phv=Date.now();const v=p.phv;shrink(f).then(b=>dtx('readwrite',s=>s.put({id:p.id,blob:b,v}),'photos')).then(()=>{if(phURL[p.id]){URL.revokeObjectURL(phURL[p.id]);delete phURL[p.id]}render();schedSync()}).catch(()=>alert('Не удалось сохранить фото'))}})}
+async function delPlant(id){if(!confirm('Удалить цветок?'))return;S.plants=S.plants.filter(x=>x.id!==id);touch('plant|'+id);try{await dtx('readwrite',s=>s.delete(id),'photos')}catch(e){}save();closeSheet();render()}
+function printPlants(){const days=Array.from({length:30},(_,i)=>add(today(),i));let rows='';
+ for(const p of S.plants)for(const c of CARE){const ev=+p.every[c.k]||0;if(!ev)continue;const s=careSt(p,c.k),next=add(today(),Math.max(0,s.due));
+  rows+=`<tr><td style="text-align:left;white-space:nowrap">${esc(p.name)}</td><td>${c.ic}</td>${days.map(d=>{const x=dayDiff(next,d);return`<td>${x>=0&&x%ev===0?'○':''}</td>`}).join('')}</tr>`}
+ document.getElementById('print').innerHTML=`<section class=pg><h2>🌸 График ухода за цветами</h2><div class=meta>${fmtS(days[0])} — ${fmtS(days[29])} · ○ — запланировано, отмечайте галочкой. 💧 полив · 🧪 подкормка · 💦 опрыскивание</div><table class=grid><thead><tr><th>Цветок</th><th></th>${days.map(d=>`<th>${pd(d).getDate()}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></section>`;
+ setTimeout(()=>window.print(),50)}
+function tSlot(hid,k){if(!guard())return;const m=curM().id,h=S.habits.find(x=>x.id===hid);const v=getV(m,curD,hid);const a=Array.isArray(v)?[...v]:Array(h.slots.length).fill(0);const was=fullDay(m,curD);a[k]=a[k]?0:1;setV(m,curD,hid,a);buzz();render();if(!was&&fullDay(m,curD))celebrate(h.id==='namaz'?'Все намазы дня совершены. Машаллах!':'Все дела дня выполнены!')}
+function tHab(hid){if(!guard())return;const m=curM().id,h=S.habits.find(x=>x.id===hid),on=!getV(m,curD,hid);setV(m,curD,hid,on?1:null);buzz();render();if(on&&periodCount(m,h,curD)===h.target)celebrate((h.short||h.name)+': цель '+(h.type==='weekly'?'недели':'месяца')+' выполнена!')}
+function setRel(hid,val){if(!guard())return;const m=curM().id;setV(m,curD,hid,val||(getV(m,curD,hid)?1:null));render()}
+function cell(mid,d,hid,k){if(!guard(mid))return;const h=S.habits.find(x=>x.id===hid),v=getV(mid,d,hid);
+ if(k>=0){const a=Array.isArray(v)?[...v]:Array(h.slots.length).fill(0);a[k]=a[k]?0:1;setV(mid,d,hid,a)}else setV(mid,d,hid,v?null:1);render()}
+
+/* ---------- Таблица ---------- */
+function tableHTML(mid,marks,inter){
+ const hs=habitsOf(mid);let r1='<tr><th rowspan=2>№</th><th rowspan=2>Дата</th>',r2='<tr>';
+ for(const h of hs){if(h.type==='daily'){r1+=`<th colspan=${h.slots.length}>${h.icon} ${esc(h.short||h.name)}</th>`;h.slots.forEach(s=>r2+=`<th>${esc(s.slice(0,3))}</th>`)}
+  else r1+=`<th rowspan=2>${h.icon}<br>${esc(h.short||h.name)}<br><small>${h.target}/${h.type==='weekly'?'нед':'мес'}</small></th>`}
+ r1+='</tr>';r2+='</tr>';let body='';const t=today();
+ dates().forEach((d,i)=>{body+=`<tr class="${i%7===0&&i?'wk':''} ${d===t&&inter?'td':''}"><td>${i+1}</td><td>${fmtS(d)}</td>`;
+  for(const h of hs){const v=getV(mid,d,h.id);
+   if(h.type==='daily')h.slots.forEach((s,k)=>{const on=marks&&Array.isArray(v)&&v[k];body+=`<td class="c ${on?'on':''}" ${inter?`onclick="cell('${mid}','${d}','${h.id}',${k})"`:''}>${on?'✓':''}</td>`});
+   else{const on=marks&&v;body+=`<td class="c ${on?'on':''}" ${inter?`onclick="cell('${mid}','${d}','${h.id}',-1)"`:''}>${on?'✓':''}</td>`}}
+  body+='</tr>'});
+ return`<table class=grid><thead>${r1}${r2}</thead><tbody>${body}</tbody></table>`}
+function rTable(){const m=curM();if(!m)return'';
+ return chips()+`<div class=card><div class=row><select onchange="prWho=this.value"><option value=cur ${prWho==='cur'?'selected':''}>Только ${esc(shortName(m))}</option><option value=all ${prWho==='all'?'selected':''}>Все участники</option></select><select onchange="prMode=this.value"><option value=marks ${prMode==='marks'?'selected':''}>С отметками</option><option value=blank ${prMode==='blank'?'selected':''}>Пустой бланк (на стену)</option></select></div>
+ <div class=row><button class="btn pri" onclick="doPrint()">🖨 Печать / PDF</button><button class=btn onclick="doCSV()">📊 Excel</button></div>
+ <div class=mut style="margin-top:6px">В окне печати выберите «Сохранить как PDF». Нажмите на клетку таблицы, чтобы поставить или снять отметку.</div></div>
+ <div class=scroll>${tableHTML(m.id,true,canEdit(m.id))}</div>`}
+function whoIds(){return prWho==='all'?S.members.filter(m=>habitsOf(m.id).length).map(m=>m.id):[curM().id]}
+function goalsLine(mid){return habitsOf(mid).map(h=>`${h.icon} ${h.short||h.name}: ${h.type==='daily'?h.slots.length+' раз в день':h.target+' раз в '+(h.type==='weekly'?'неделю':'месяц')}`).join(' · ')}
+function doPrint(){const marks=prMode==='marks';
+ document.getElementById('print').innerHTML=whoIds().map(id=>{const m=S.members.find(x=>x.id===id);
+  return`<section class=pg><h2>${esc(S.ch.title)}</h2><div class=meta><b>${esc(fullName(m))}</b> · ${fmtS(S.ch.start)}.${pd(S.ch.start).getFullYear()} — ${fmtS(add(S.ch.start,S.ch.days-1))}.${pd(add(S.ch.start,S.ch.days-1)).getFullYear()}</div>${tableHTML(id,marks,false)}<div class=foot>Цели: ${esc(goalsLine(id))}</div></section>`}).join('');
+ setTimeout(()=>window.print(),50)}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function doCSV(){const rows=[];
+ for(const id of whoIds()){const m=S.members.find(x=>x.id===id),hs=habitsOf(id);
+  rows.push([S.ch.title+' — '+fullName(m)]);
+  const head=['День','Дата'];hs.forEach(h=>h.type==='daily'?h.slots.forEach(s=>head.push((h.short||h.name)+': '+s)):head.push(h.short||h.name));rows.push(head);
+  dates().forEach((d,i)=>{const r=[i+1,fmtS(d)];hs.forEach(h=>{const v=getV(id,d,h.id);if(h.type==='daily')h.slots.forEach((s,k)=>r.push(prMode==='marks'&&Array.isArray(v)&&v[k]?'✓':''));else r.push(prMode==='marks'&&v?'✓':'')});rows.push(r)});
+  rows.push([])}
+ const txt='﻿'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+ dl(new Blob([txt],{type:'text/csv;charset=utf-8'}),'challenge.csv')}
+
+/* ---------- Прогресс ---------- */
+function stats(mid){const hs=habitsOf(mid),n=Math.max(0,Math.min(S.ch.days,dayIdx(today())+1)),dd=dates().slice(0,n);let req=0,ach=0;
+ for(const h of hs){if(h.type==='daily'){req+=h.slots.length*n;ach+=dd.reduce((a,d)=>a+done(mid,d,h.id),0)}
+  else{req+=h.target*n/(h.type==='weekly'?7:30);const g={};dd.forEach((d,i)=>{const k=h.type==='weekly'?Math.floor(i/7):d.slice(0,7);g[k]=(g[k]||0)+(done(mid,d,h.id)?1:0)});for(const k in g)ach+=Math.min(g[k],h.target)}}
+ return{n,pct:req?Math.min(100,Math.round(ach/req*100)):0}}
+function dayPct(mid,d){const hs=habitsOf(mid).filter(h=>h.type==='daily');let r=0,a=0;hs.forEach(h=>{r+=h.slots.length;a+=done(mid,d,h.id)});const extra=habitsOf(mid).filter(h=>h.type!=='daily'&&done(mid,d,h.id)).length;return{p:r?a/r:0,extra}}
+function winsHTML(mid){const n=S.notes[mid]||{},keys=Object.keys(n).sort().reverse();if(!keys.length)return'';
+ return`<h3>📝 Мои записи и победы · ${keys.length}</h3>${keys.slice(0,5).map(d=>`<div class=win><span class=mut>${fmtS(d)}</span> ${esc(n[d])}</div>`).join('')}`}
+function archCard(){if(!S.arch.length)return'';const L=[...S.arch].sort((a,b)=>b.start.localeCompare(a.start));
+ return`<div class=card><div class=hrow><span class=ic>🏁</span><b>Пройденные челленджи · ${L.length}</b></div>${L.map(a=>`<div style="margin-top:10px"><b style="font-weight:600">${esc(a.title)}</b><div class=mut>${fmtL(a.start)} — ${fmtL(a.end)} · ${a.days} дн.</div>${(a.res||[]).map(r=>`<div class=care><span>${esc(r.n)}: <b>${r.pct}%</b> · полных дней ${r.full} · лучшая серия ${r.best}</span></div><div class=bar><i style="width:${r.pct}%"></i></div>`).join('')}${a.note?`<div class=win>${esc(a.note)}</div>`:''}</div>`).join('')}</div>`}
+function rProg(){let h=goalsCard()+libCard();const t=today();
+ for(const m of S.members){const hs=habitsOf(m.id);if(!hs.length)continue;const st=stats(m.id);
+  let full=0,streak=0,run=0;const daily=hs.filter(x=>x.type==='daily');
+  dates().slice(0,st.n).forEach(d=>{const ok=daily.length&&daily.every(x=>done(m.id,d,x.id)===x.slots.length);if(ok){full++;run++}else run=0});streak=run;
+  const W=400,bw=W/S.ch.days;let bars='';
+  dates().forEach((d,i)=>{const{p,extra}=dayPct(m.id,d),fut=d>t,hh=Math.max(2,p*90);const col=fut?'var(--line)':p>=1?'var(--ok)':p>=.6?'var(--warn)':'var(--bad)';
+   bars+=`<rect x="${i*bw+1}" y="${100-(fut?2:hh)}" width="${Math.max(1,bw-2)}" height="${fut?2:hh}" rx="1.5" fill="${col}"/>`;
+   for(let e=0;e<Math.min(extra,3);e++)bars+=`<circle cx="${i*bw+bw/2}" cy="${100-hh-5-e*5}" r="1.8" fill="var(--pri)"/>`});
+  const weeks=Math.ceil(S.ch.days/7);
+  let wt=`<table class=grid style="width:100%"><tr><th style="text-align:left">Направление</th>${Array.from({length:weeks},(_,w)=>`<th>Н${w+1}</th>`).join('')}</tr>`;
+  for(const x of hs.filter(x=>x.type==='weekly')){wt+=`<tr><td style="text-align:left">${x.icon} ${esc(x.short||x.name)}</td>`;
+   for(let w=0;w<weeks;w++){const d0=add(S.ch.start,w*7),c=periodCount(m.id,x,d0),past=d0<=t;wt+=`<td class="wkc ${!past?'':c>=x.target?'g':c>0?'y':'r'}">${past?c+'/'+x.target:'·'}</td>`}wt+='</tr>'}
+  wt+='</table>';
+  const mon=hs.filter(x=>x.type==='monthly').map(x=>`${x.icon} ${esc(x.short||x.name)}: <b>${periodCount(m.id,x,t)}/${x.target}</b> в этом месяце`).join('<br>');
+  h+=`<div class=card><b>${esc(fullName(m))}</b><div class=kpis style="margin-top:8px"><div><div class=big>${st.pct}%</div><div class=mut>выполнение</div></div><div><div class=big>${full}</div><div class=mut>полных дней</div></div><div><div class=big>${streak}</div><div class=mut>дней подряд</div></div></div>
+  <h3>Каждый день</h3><svg viewBox="0 0 ${W} 104" width="100%" role="img" aria-label="Выполнение по дням">${bars}</svg><div class=mut>Столбик — ежедневные дела (намаз); точки — прочие отмеченные дела.</div>
+  <h3>По неделям</h3><div class=scroll>${wt}</div>${mon?`<div style="margin-top:8px">${mon}</div>`:''}${badgesHTML(m.id)}${winsHTML(m.id)}</div>`}
+ h+=archCard();
+ return h||'<p class=mut>Пока нет данных.</p>'}
+
+/* ---------- Семья и документы ---------- */
+let dbp;function idb(){return dbp??=new Promise((res,rej)=>{const r=indexedDB.open('family40docs',2);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('docs'))d.createObjectStore('docs',{keyPath:'id'});if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function dtx(mode,fn,store='docs'){const d=await idb();return new Promise((res,rej)=>{const t=d.transaction(store,mode),r=fn(t.objectStore(store));t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)})}
+const allDocs=()=>dtx('readonly',s=>s.getAll());
+let docCount={};async function refreshDocCount(){try{const a=await allDocs();docCount={};a.forEach(x=>docCount[x.mid]=(docCount[x.mid]||0)+1)}catch(e){}if(tab==='fam')render()}
+function age(b){if(!b)return'';const d=pd(b),n=new Date();let a=n.getFullYear()-d.getFullYear();if(n<new Date(n.getFullYear(),d.getMonth(),d.getDate()))a--;return a+' лет'}
+function rFam(){let h='<h3>Члены семьи</h3>';
+ for(const m of S.members)h+=`<div class=card><div class=hrow><span class=ic>👤</span><b>${esc(fullName(m))}</b><span class=pill>${esc(m.role||'')}</span></div><div class=mut>${m.birth?pd(m.birth).toLocaleDateString('ru-RU')+' · '+age(m.birth):'Дата рождения не указана'}${m.phone?' · '+esc(m.phone):''}</div><div class=row>${canEdit(m.id)?`<button class=btn onclick="editMember('${m.id}')">✏️ Данные</button><button class=btn onclick="openDocs('${m.id}')">📁 Документы (${docCount[m.id]||0})</button>`:'<span class=mut>🔒 Меняет только сам(а)</span>'}${m.id===ME?' <span class=pill>это вы</span>':''}</div></div>`;
+ h+=`<button class="btn pri wide" onclick="editMember()">+ Добавить члена семьи</button><h3>Родственники (очередь звонков и визитов)</h3><div class=card>`;
+ if(!S.relatives.length)h+='<div class=mut>Добавьте родственников — приложение будет подсказывать, кому позвонить и к кому съездить по очереди.</div>';
+ for(const r of S.relatives){const lc=lastC(r.id,'call'),lv=lastC(r.id,'visit');h+=`<div class=li><div class=f><b>${esc(r.name)}</b> <span class=mut>${esc(r.relation||'')}</span><div class=mut>📞 ${lc?fmtS(lc):'—'} · 🚗 ${lv?fmtS(lv):'—'}</div></div>${r.phone?`<a class=btn href="tel:${esc(r.phone)}">📞</a>`:''}<button class=btn onclick="editRel('${r.id}')">✏️</button></div>`}
+ return h+`</div><button class="btn wide" onclick="editRel()">+ Добавить родственника</button>`}
+function sheet(title,body,onsave){const el=document.getElementById('sheet');el.innerHTML=`<div class=sh><div class=shh><b>${title}</b><button class=ib onclick="closeSheet()">✕</button></div>${body}${onsave?'<button class="btn pri wide" id=shsave>Сохранить</button>':''}</div>`;el.classList.add('open');
+ if(onsave)document.getElementById('shsave').onclick=()=>{if(onsave(el)!==false){save();closeSheet();render()}}}
+function closeSheet(){document.getElementById('sheet').classList.remove('open')}
+document.getElementById('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
+const fv=(el,n)=>el.querySelector(`[name="${n}"]`).value.trim();
+function editMember(id){if(id&&!guard(id))return;const m=S.members.find(x=>x.id===id)||{id:uid(),last:'',first:'',middle:'',birth:'',phone:'',role:'',note:''},isNew=!id;
+ sheet(isNew?'Новый член семьи':'Данные',`<label>Фамилия<input name=last value="${esc(m.last)}"></label><label>Имя<input name=first value="${esc(m.first)}"></label><label>Отчество<input name=middle value="${esc(m.middle)}"></label><label>Дата рождения<input type=date name=birth value="${esc(m.birth)}"></label><label>Телефон<input type=tel name=phone value="${esc(m.phone)}"></label><label>Роль в семье<input name=role value="${esc(m.role)}" placeholder="Муж, жена, дочь…"></label><label>Заметки<textarea name=note rows=3>${esc(m.note)}</textarea></label>${isNew?'':`<button class="btn red wide" onclick="delMember('${m.id}')">Удалить</button>`}`,
+ el=>{['last','first','middle','birth','phone','role','note'].forEach(k=>m[k]=fv(el,k));if(!m.first&&!m.last){alert('Укажите имя');return false}if(isNew){S.members.push(m);if(confirm('Добавить нового участника во все направления челленджа?'))S.habits.forEach(h=>{h.members.push(m.id);touch('habit|'+h.id)})}touch('member|'+m.id)})}
+async function delMember(id){if(id===ME)return alert('Нельзя удалить себя.');if(!guard(id))return;if(!confirm('Удалить члена семьи, его отметки и документы?'))return;touch('member|'+id);S.members=S.members.filter(x=>x.id!==id);S.habits.forEach(h=>{if(h.members.includes(id)){h.members=h.members.filter(x=>x!==id);touch('habit|'+h.id)}});for(const d in S.log[id]||{})touch(`log|${id}|${d}`);for(const d in S.notes[id]||{})touch(`note|${id}|${d}`);delete S.log[id];delete S.notes[id];
+ try{const a=await allDocs();for(const d of a.filter(x=>x.mid===id))await dtx('readwrite',s=>s.delete(d.id))}catch(e){}save();closeSheet();curMid=S.members[0]?.id;refreshDocCount();render()}
+function editRel(id){const r=S.relatives.find(x=>x.id===id)||{id:uid(),name:'',relation:'',phone:'',birth:''},isNew=!id;
+ sheet(isNew?'Новый родственник':'Родственник',`<label>Имя<input name=name value="${esc(r.name)}"></label><label>Кем приходится<input name=relation value="${esc(r.relation)}" placeholder="тётя, дядя, брат…"></label><label>Телефон<input type=tel name=phone value="${esc(r.phone)}"></label><label>День рождения (для напоминания)<input type=date name=birth value="${esc(r.birth||'')}"></label>${isNew?'':`<button class="btn red wide" onclick="delRel('${r.id}')">Удалить</button>`}`,
+ el=>{r.name=fv(el,'name');r.relation=fv(el,'relation');r.phone=fv(el,'phone');r.birth=fv(el,'birth');if(!r.name){alert('Укажите имя');return false}if(isNew)S.relatives.push(r);touch('rel|'+r.id)})}
+function delRel(id){if(!confirm('Удалить родственника?'))return;S.relatives=S.relatives.filter(x=>x.id!==id);touch('rel|'+id);save();closeSheet();render()}
+async function openDocs(mid){if(!guard(mid))return;const m=S.members.find(x=>x.id===mid);let list=[];try{list=(await allDocs()).filter(x=>x.mid===mid).sort((a,b)=>b.date.localeCompare(a.date))}catch(e){}
+ const kb=n=>n>1048576?(n/1048576).toFixed(1)+' МБ':Math.ceil(n/1024)+' КБ';
+ sheet('Документы · '+esc(shortName(m)),`<div class=note>Документы хранятся только на этом телефоне, в памяти браузера. В интернет и на GitHub они не отправляются. Делайте резервную копию в «Настройках».</div>
+ <label class="btn pri wide" style="text-align:center;color:#fff">📎 Загрузить файлы<input type=file multiple style="display:none" onchange="upDocs('${mid}',this.files)"></label>
+ <div class=card>${list.length?list.map(d=>`<div class=li><div class=f>📄 ${esc(d.name)}<div class=mut>${fmtS(d.date)} · ${kb(d.size)}</div></div><button class=btn onclick="getDoc('${d.id}')">⬇️</button><button class="btn red" onclick="delDoc('${d.id}','${mid}')">🗑</button></div>`).join(''):'<div class=mut>Документов пока нет.</div>'}</div>`)}
+async function upDocs(mid,files){try{for(const f of files)await dtx('readwrite',s=>s.put({id:uid(),mid,name:f.name,type:f.type,size:f.size,date:today(),blob:f}))}catch(e){alert('Не удалось сохранить файл: '+e)}refreshDocCount();openDocs(mid)}
+async function getDoc(id){const d=await dtx('readonly',s=>s.get(id));if(d)dl(d.blob,d.name)}
+async function delDoc(id,mid){if(!confirm('Удалить документ?'))return;await dtx('readwrite',s=>s.delete(id));refreshDocCount();openDocs(mid)}
+
+/* ---------- Новый челлендж: итоги текущего уходят в архив, отметки сохраняются ---------- */
+function chResult(){const end=add(S.ch.start,S.ch.days-1);
+ return S.members.filter(m=>habitsOf(m.id).length).map(m=>{const st=stats(m.id),dd=dates().slice(0,st.n);let full=0;dd.forEach(d=>{if(fullDay(m.id,d))full++});return{n:shortName(m),pct:st.pct,full,best:maxStreak(m.id)}})}
+function newCh(){const i=dayIdx(today()),fin=i>=S.ch.days,nx=fin?today():add(today(),1);
+ sheet('🏁 Завершить и начать новый',`<div class=note>Итоги «${esc(S.ch.title)}» сохранятся в «Прогресс» → «Пройденные челленджи». Все отметки, записи, книги и цели остаются. Направления можно поменять потом в «Настройках».</div>${fin?'':`<div class=note style="background:#fdecc8;color:#7a4b00">Текущий челлендж ещё идёт: день ${Math.max(1,i+1)} из ${S.ch.days}. Завершить досрочно?</div>`}
+ <label>Чем запомнился этот челлендж? (необязательно)<textarea name=note rows=2 placeholder="Главный вывод, чем гордимся…"></textarea></label>
+ <h3>Следующий челлендж</h3><label>Название<input name=title value="" placeholder="Например: 40 дней — здоровье и спорт"></label>
+ <div class=row><label>Старт<input type=date name=start value="${nx}"></label><label>Дней<input type=number name=days min=1 max=365 value="40"></label></div>`,
+ el=>{const title=fv(el,'title');if(!title){alert('Укажите название нового челленджа');return false}
+  const a={id:uid(),title:S.ch.title,start:S.ch.start,days:Math.min(S.ch.days,Math.max(1,i+1)),end:add(S.ch.start,Math.min(S.ch.days,Math.max(1,i+1))-1),res:chResult(),note:fv(el,'note')};
+  S.arch.push(a);touch('arc|'+a.id);
+  S.ch={title,start:fv(el,'start')||nx,days:Math.max(1,Math.min(365,+fv(el,'days')||40))};touch('ch');curD=today();
+  setTimeout(()=>celebrate('«'+a.title+'» — в архиве. Бисмиллях, новый старт!'),80)})}
+
+/* ---------- Настройки ---------- */
+const typeName={daily:'каждый день',weekly:'раз в неделю',monthly:'раз в месяц'};
+function rSet(){let h=`${accCard()}${syncCard()}<h3>Текущий челлендж</h3><div class=card><label>Название<input id=chT value="${esc(S.ch.title)}"></label><div class=row><label>Старт<input type=date id=chS value="${S.ch.start}"></label><label>Дней<input type=number id=chN min=1 max=365 value="${S.ch.days}"></label></div><button class="btn pri wide" onclick="saveCh()">Сохранить</button><button class="btn wide" onclick="newCh()">🏁 Завершить и начать новый</button><div class=mut style="margin-top:6px">Пройдено челленджей: ${S.arch.length}. Итоги каждого хранятся во вкладке «Прогресс».</div></div><h3>Направления</h3>`;
+ for(const x of S.habits)h+=`<div class=card><div class=hrow><span class=ic>${x.icon}</span><b>${esc(x.name)}</b><button class=btn onclick="editHabit('${x.id}')">✏️</button></div><div class=mut>${x.type==='daily'?x.slots.length+' раз '+typeName.daily:x.target+' '+typeName[x.type]} · ${x.members.map(id=>esc(shortName(S.members.find(m=>m.id===id)||{}))).join(', ')||'никто'}</div></div>`;
+ h+=`<button class="btn wide" onclick="editHabit()">+ Новое направление</button><h3>Резервная копия</h3><div class=card><div class=mut>Сохраняйте копию раз в неделю (в Telegram «Избранное» или на Google Диск). С её помощью данные переносятся на другой телефон.</div><div class=row><button class=btn onclick="backup(false)">💾 Только данные</button><button class=btn onclick="backup(true)">💾 С документами и фото</button></div><label class="btn wide" style="text-align:center">📥 Восстановить из копии<input type=file accept=".json,application/json" style="display:none" onchange="restore(this.files[0])"></label></div>
+ <h3>Как установить на телефон</h3><div class=card><div class=mut>Откройте ссылку в Safari (iPhone) или Chrome (Android) → «Поделиться» / меню ⋮ → «На экран Домой». После первого открытия приложение работает и без интернета.</div></div>
+ <button class="btn red wide" onclick="if(confirm('Стереть все отметки? Члены семьи, родственники, архив и документы останутся.')){resetLog()}">Сбросить отметки</button><div class=mut style="text-align:center;margin-top:14px">Семья · версия ${APPV}</div>`;
+ return h}
+function saveCh(){S.ch.title=document.getElementById('chT').value.trim()||'Челлендж';S.ch.start=document.getElementById('chS').value||S.ch.start;S.ch.days=Math.max(1,Math.min(365,+document.getElementById('chN').value||40));touch('ch');save();render();alert('Сохранено')}
+function editHabit(id){const x=S.habits.find(h=>h.id===id)||{id:uid(),name:'',short:'',icon:'⭐',type:'weekly',target:1,slots:[],members:S.members.map(m=>m.id)},isNew=!id;
+ sheet(isNew?'Новое направление':'Направление',`<label>Название<input name=name value="${esc(x.name)}"></label><div class=row><label>Коротко (для таблицы)<input name=short value="${esc(x.short||'')}"></label><label>Значок<input name=icon value="${esc(x.icon)}"></label></div>
+ <label>Как часто<select name=type><option value=daily ${x.type==='daily'?'selected':''}>Каждый день (по пунктам)</option><option value=weekly ${x.type==='weekly'?'selected':''}>N раз в неделю</option><option value=monthly ${x.type==='monthly'?'selected':''}>N раз в месяц</option></select></label>
+ <label>Сколько раз (для недели / месяца)<input type=number name=target min=1 value="${x.target||1}"></label>
+ <label>Пункты на день, через запятую (для «каждый день»)<input name=slots value="${esc((x.slots||[]).join(', '))}" placeholder="Фаджр, Зухр, Аср, Магриб, Иша"></label>
+ <label>Очередь родственников<select name=kind><option value="">Нет</option><option value=call ${x.kind==='call'?'selected':''}>Звонки</option><option value=visit ${x.kind==='visit'?'selected':''}>Визиты</option></select></label>
+ <label>Кто участвует</label>${S.members.map(m=>`<label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type=checkbox style="width:auto;margin:0" data-m="${m.id}" ${x.members.includes(m.id)?'checked':''}>${esc(fullName(m))}</label>`).join('')}
+ ${isNew?'':`<button class="btn red wide" onclick="delHabit('${x.id}')">Удалить направление</button>`}`,
+ el=>{x.name=fv(el,'name');if(!x.name){alert('Укажите название');return false}x.short=fv(el,'short');x.icon=fv(el,'icon')||'⭐';x.type=fv(el,'type');x.target=Math.max(1,+fv(el,'target')||1);
+  x.slots=fv(el,'slots').split(',').map(s=>s.trim()).filter(Boolean);if(x.type==='daily'&&!x.slots.length)x.slots=['Сделано'];x.kind=fv(el,'kind')||undefined;
+  x.members=[...el.querySelectorAll('[data-m]')].filter(c=>c.checked).map(c=>c.dataset.m);if(isNew)S.habits.push(x);touch('habit|'+x.id)})}
+function delHabit(id){if(!confirm('Удалить направление?'))return;S.habits=S.habits.filter(x=>x.id!==id);touch('habit|'+id);save();closeSheet();render()}
+const b64=blob=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(blob)});
+async function backup(withDocs){const out={app:'family40',ver:1,date:today(),state:S};
+ if(withDocs){const a=await allDocs();out.docs=[];for(const d of a)out.docs.push({...d,blob:await b64(d.blob)});
+  const ph=await dtx('readonly',s=>s.getAll(),'photos');out.photos=[];for(const p of ph)out.photos.push({id:p.id,v:p.v,blob:await b64(p.blob)})}
+ dl(new Blob([JSON.stringify(out)],{type:'application/json'}),`semya-${today()}${withDocs?'-docs':''}.json`)}
+async function restore(file){if(!file)return;try{const o=JSON.parse(await file.text());if(!o.state||!o.state.members)throw'формат';if(!confirm('Заменить текущие данные данными из файла?'))return;const old=Object.keys(S.ts||{}),pins={};S.members.forEach(m=>{if(m.pinH)pins[m.id]=m.pinH});S=fixS(o.state);S.members.forEach(m=>{if(!m.pinH&&pins[m.id])m.pinH=pins[m.id]});S.ts={};const now=Date.now();stampAll(S,now);old.forEach(k=>{if(!S.ts[k])S.ts[k]=now});save();
+ if(o.docs)for(const d of o.docs){const blob=await (await fetch(d.blob)).blob();await dtx('readwrite',s=>s.put({...d,blob}))}
+ if(o.photos)for(const p of o.photos){const blob=await (await fetch(p.blob)).blob();await dtx('readwrite',s=>s.put({id:p.id,v:p.v,blob}),'photos')}
+ curMid=S.members[0]?.id;refreshDocCount();render();alert('Готово! Данные загружены.')}catch(e){alert('Не удалось прочитать файл')}}
+
+/* ---------- Каркас ---------- */
+function go(t){tab=t;render();scrollTo(0,0)}
+function render(){if(needLogin()){showLogin();return}document.getElementById('login')?.remove();document.getElementById('ttl').textContent=S.ch.title;const i=dayIdx(today());
+ document.getElementById('sub').textContent=i<0?'Старт '+fmtD(S.ch.start):i>=S.ch.days?'Челлендж завершён — так держать!':'День '+(i+1)+' из '+S.ch.days;
+ document.getElementById('main').innerHTML={today:rToday,table:rTable,prog:rProg,plants:rPlants,fam:rFam,set:rSet}[tab]();
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));fillPhotos()}
+render();refreshDocCount();syncNow();
+let lastDay=today();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(lastDay!==today()){if(curD===lastDay)curD=today();lastDay=today();if(!busy())render()}syncNow()}});setInterval(()=>{if(!document.hidden)syncNow()},120000);
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
